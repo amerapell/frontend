@@ -1,26 +1,66 @@
 "use client";
-import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import { forwardRef, useId, useState, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
 
 type Common = { label: string; error?: string | null; full?: boolean; hint?: ReactNode; className?: string };
 
 /** 58px box, mono label inside top-left, border turns ink on focus. */
 export const FieldBox = forwardRef<HTMLInputElement, Common & InputHTMLAttributes<HTMLInputElement>>(function FieldBox(
-  { label, error, full, hint, className = "", id, ...rest },
+  { label, error, full, hint, className = "", id, type, ...rest },
   ref,
 ) {
   const auto = useId();
   const fid = id ?? auto;
+  const isPassword = type === "password";
+  const [visible, setVisible] = useState(false);
+  const input = (
+    <label className={`field${error ? " field--error" : ""}${isPassword ? " field--password" : ""}`} htmlFor={fid}>
+      <span className="field__label">{label}</span>
+      <input ref={ref} id={fid} type={isPassword && visible ? "text" : type} aria-invalid={!!error} aria-describedby={error ? `${fid}-err` : undefined} {...rest} />
+    </label>
+  );
   return (
     <div className={`field-wrap ${full ? "field-wrap--full" : ""} ${className}`}>
-      <label className={`field${error ? " field--error" : ""}`} htmlFor={fid}>
-        <span className="field__label">{label}</span>
-        <input ref={ref} id={fid} aria-invalid={!!error} aria-describedby={error ? `${fid}-err` : undefined} {...rest} />
-      </label>
+      {isPassword ? (
+        <div className="field-pw">
+          {input}
+          <button
+            type="button"
+            className="field-pw__toggle"
+            onClick={() => setVisible((v) => !v)}
+            aria-label={visible ? "Hide password" : "Show password"}
+            aria-pressed={visible}
+            aria-controls={fid}
+          >
+            {visible ? <EyeOffIcon /> : <EyeIcon />}
+          </button>
+        </div>
+      ) : (
+        input
+      )}
       {error && <span id={`${fid}-err`} className="field__error" role="alert">{error}</span>}
       {!error && hint && <span className="field__hint">{hint}</span>}
     </div>
   );
 });
+
+function EyeIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+      <path d="M2 12s3.6-7 10-7c2 0 3.8.7 5.2 1.6M22 12s-3.6 7-10 7c-2 0-3.8-.7-5.2-1.6" />
+      <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+      <path d="M3 3l18 18" />
+    </svg>
+  );
+}
 
 export function SelectBox({ label, error, full, className = "", id, children, ...rest }: Common & SelectHTMLAttributes<HTMLSelectElement> & { children: ReactNode }) {
   const auto = useId();
