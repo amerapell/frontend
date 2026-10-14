@@ -1,0 +1,44 @@
+"use client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+const KEY = "ap_cookie_consent";
+export type CookieConsent = "all" | "essential";
+
+export function readCookieConsent(): CookieConsent | null {
+  try {
+    return (window.localStorage.getItem(KEY) as CookieConsent | null) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** NDPA 2023 cookie notice — essential cookies only unless the visitor accepts. */
+export function CookieNotice() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    if (!readCookieConsent()) setShow(true);
+  }, []);
+  if (!show) return null;
+  const decide = (v: CookieConsent) => {
+    try {
+      window.localStorage.setItem(KEY, v);
+      document.cookie = `${KEY}=${v}; path=/; max-age=${60 * 60 * 24 * 180}; samesite=lax`;
+    } catch {
+      /* ignore */
+    }
+    setShow(false);
+  };
+  return (
+    <div className="cookie" role="region" aria-label="Cookie notice">
+      <p>
+        <span className="mono-label">COOKIES</span> We use essential cookies to keep your bag and sign-in working. With your OK we&apos;ll also use analytics cookies to improve the store.{" "}
+        <Link href="/policies/privacy" className="ap-link">Privacy</Link>
+      </p>
+      <div className="cookie__actions">
+        <button type="button" className="btn btn--ghost" onClick={() => decide("essential")}>Decline non-essential</button>
+        <button type="button" className="btn btn--short" onClick={() => decide("all")}>Accept all</button>
+      </div>
+    </div>
+  );
+}

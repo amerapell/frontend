@@ -1,0 +1,109 @@
+import { api } from "./client";
+import type {
+  AdminCollection,
+  AdminDashboard,
+  AdminExchange,
+  AdminLoginResponse,
+  AdminOrder,
+  AdminOrderDetail,
+  AdminProduct,
+  AdminProductInput,
+  AdminProductListItem,
+  CloudinarySignature,
+  ContentPage,
+  DeliveryZone,
+  Discount,
+  FaqItemAdmin,
+  OrderStatus,
+  Paginated,
+  StoreSettings,
+  Variant,
+} from "../types";
+
+const a = { auth: "admin" as const };
+
+export const adminApi = {
+  login: (email: string, password: string) => api.post<AdminLoginResponse>("admin/auth/login", { email, password }),
+  totp: (tempToken: string, code: string) => api.post<{ accessToken: string }>("admin/auth/totp", { tempToken, code }),
+  /** Requires an admin access token (first login without TOTP). */
+  totpSetup: () => api.post<{ otpauthUrl: string; secret: string }>("admin/auth/totp/setup", undefined, a),
+  totpEnable: (code: string) => api.post<{ ok: true }>("admin/auth/totp/enable", { code }, a),
+  dashboard: () => api.get<AdminDashboard>("admin/dashboard", a),
+
+  products: (q?: { q?: string; status?: string; page?: number }) => api.get<Paginated<AdminProductListItem>>("admin/products", { ...a, query: q }),
+  product: (id: string) => api.get<AdminProduct>(`admin/products/${id}`, a),
+  createProduct: (b: AdminProductInput) => api.post<AdminProduct>("admin/products", b, a),
+  updateProduct: (id: string, b: Partial<AdminProductInput>) => api.patch<AdminProduct>(`admin/products/${id}`, b, a),
+  archiveProduct: (id: string) => api.del<unknown>(`admin/products/${id}`, a),
+  updateVariant: (id: string, b: { priceKobo?: number; compareAtKobo?: number | null; stock?: number; sku?: string }) => api.patch<Variant>(`admin/variants/${id}`, b, a),
+  exportStock: () => api.get<string>("admin/stock/export", { ...a, text: true }),
+  importStock: (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return api.post<{ updated: number; errors: string[] }>("admin/stock/import", fd, a);
+  },
+  signUpload: () => api.post<CloudinarySignature>("admin/uploads/sign", undefined, a),
+
+  collections: () => api.get<AdminCollection[]>("admin/collections", a),
+  collection: (id: string) => api.get<AdminCollection>(`admin/collections/${id}`, a),
+  createCollection: (b: Partial<AdminCollection>) => api.post<AdminCollection>("admin/collections", b, a),
+  updateCollection: (id: string, b: Partial<AdminCollection>) => api.patch<AdminCollection>(`admin/collections/${id}`, b, a),
+  deleteCollection: (id: string) => api.del<unknown>(`admin/collections/${id}`, a),
+
+  orders: (q?: { status?: string; provider?: string; q?: string; page?: number }) => api.get<Paginated<AdminOrder>>("admin/orders", { ...a, query: q }),
+  order: (id: string) => api.get<AdminOrderDetail>(`admin/orders/${id}`, a),
+  updateOrder: (id: string, b: { status?: OrderStatus; note?: string }) => api.patch<AdminOrderDetail>(`admin/orders/${id}`, b, a),
+  refundOrder: (id: string) => api.post<AdminOrderDetail>(`admin/orders/${id}/refund`, undefined, a),
+  packingSlip: (id: string) => api.get<string>(`admin/orders/${id}/packing-slip`, { ...a, text: true }),
+
+  exchanges: (status?: string) => api.get<AdminExchange[]>("admin/exchanges", { ...a, query: { status } }),
+  exchange: (id: string) => api.get<AdminExchange>(`admin/exchanges/${id}`, a),
+  exchangeAction: (id: string, action: "approve" | "decline" | "receive" | "complete", note?: string) =>
+    api.post<AdminExchange>(`admin/exchanges/${id}/${action}`, { note }, a),
+
+  discounts: () => api.get<Discount[]>("admin/discounts", a),
+  discount: (id: string) => api.get<Discount>(`admin/discounts/${id}`, a),
+  createDiscount: (b: Omit<Discount, "id">) => api.post<Discount>("admin/discounts", b, a),
+  updateDiscount: (id: string, b: Partial<Discount>) => api.patch<Discount>(`admin/discounts/${id}`, b, a),
+  deleteDiscount: (id: string) => api.del<unknown>(`admin/discounts/${id}`, a),
+
+  zones: () => api.get<DeliveryZone[]>("admin/delivery-zones", a),
+  zone: (id: string) => api.get<DeliveryZone>(`admin/delivery-zones/${id}`, a),
+  updateZone: (id: string, b: Partial<DeliveryZone>) => api.patch<DeliveryZone>(`admin/delivery-zones/${id}`, b, a),
+
+  settings: () => api.get<StoreSettings>("admin/settings", a),
+  updateSettings: (b: Partial<StoreSettings>) => api.patch<StoreSettings>("admin/settings", b, a),
+
+  faq: () => api.get<FaqItemAdmin[]>("admin/faq", a),
+  faqItem: (id: string) => api.get<FaqItemAdmin>(`admin/faq/${id}`, a),
+  createFaq: (b: Omit<FaqItemAdmin, "id">) => api.post<FaqItemAdmin>("admin/faq", b, a),
+  updateFaq: (id: string, b: Partial<FaqItemAdmin>) => api.patch<FaqItemAdmin>(`admin/faq/${id}`, b, a),
+  deleteFaq: (id: string) => api.del<unknown>(`admin/faq/${id}`, a),
+
+  pages: () => api.get<ContentPage[]>("admin/pages", a),
+  page: (slug: string) => api.get<ContentPage>(`admin/pages/${slug}`, a),
+  updatePage: (slug: string, b: { title?: string; bodyMarkdown?: string }) => api.patch<ContentPage>(`admin/pages/${slug}`, b, a),
+};
+
+/** Direct browser → Cloudinary signed upload (signature comes from the API). */
+export async function uploadToCloudinary(file: File): Promise<string> {
+  const sig = await adminApi.signUpload();
+  if (sig.cloudName === "mock") {
+    return await new Promise<string>((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(file);
+    });
+  }
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("api_key", sig.apiKey);
+  fd.append("timestamp", String(sig.timestamp));
+  fd.append("signature", sig.signature);
+  fd.append("folder", sig.folder);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, { method: "POST", body: fd });
+  if (!res.ok) throw new Error("Upload failed");
+  const json = (await res.json()) as { secure_url: string };
+  return json.secure_url;
+}

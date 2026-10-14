@@ -1,0 +1,54 @@
+/* ==========================================================================
+   Motion — keyframes from the design files
+   ========================================================================== */
+@keyframes ap-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes ap-drift { from { transform: translate(0, 0); } to { transform: translate(-160px, -160px); } }
+@keyframes ap-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+@keyframes ap-bump { 0% { transform: scale(1); } 40% { transform: scale(1.4); } 100% { transform: scale(1); } }
+@keyframes ap-wipe { 0% { transform: scaleX(0); transform-origin: left; } 49% { transform: scaleX(1); transform-origin: left; } 51% { transform: scaleX(1); transform-origin: right; } 100% { transform: scaleX(0); transform-origin: right; } }
+@keyframes ap-splitL { from { transform: translateX(0); } to { transform: translateX(-101%); } }
+@keyframes ap-splitR { from { transform: translateX(0); } to { transform: translateX(101%); } }
+@keyframes ap-fadeout { to { opacity: 0; transform: scale(.96); } }
+@keyframes ap-rise { from { transform: translateY(105%); } to { transform: translateY(0); } }
+@keyframes ap-fadeup { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes ap-tick { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+@keyframes ap-kb { from { transform: scale(1) translateY(0); } to { transform: scale(1.12) translateY(-14px); } }
+@keyframes ap-hint { 0%, 100% { transform: translateY(0); opacity: .55; } 50% { transform: translateY(-5px); opacity: 1; } }
+@keyframes ap-burst { 0% { transform: scale(.2) rotate(0); opacity: 1; } 70% { opacity: 1; } 100% { transform: scale(2.8) rotate(90deg); opacity: 0; } }
+@keyframes ap-toast { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes ap-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes ap-fadein { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ap-slide-in-right { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes ap-slide-in-left { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes ap-slide-down { from { transform: translateY(-12px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.ap-marquee { animation: ap-marquee 38s linear infinite; }
+.ap-drift { animation: ap-drift 40s linear infinite; }
+.ap-pulse { animation: ap-pulse 1.6s ease-in-out infinite; }
+.ap-bump { animation: ap-bump 420ms ease-out; }
+.ap-wipe { animation: ap-wipe 760ms var(--ease-in-out) forwards; }
+.ap-splitL { animation: ap-splitL 1100ms var(--ease-in-out) 250ms forwards; }
+.ap-splitR { animation: ap-splitR 1100ms var(--ease-in-out) 250ms forwards; }
+.ap-fadeout { animation: ap-fadeout 300ms ease forwards; }
+.ap-rise { animation: ap-rise 1000ms var(--ease-out) both; }
+.ap-fadeup { animation: ap-fadeup 800ms var(--ease-out) both; }
+.ap-tick { animation: ap-tick 380ms ease-out both; }
+.ap-kb { animation: ap-kb 9s ease-in-out infinite alternate; }
+.ap-hint { animation: ap-hint 1.8s ease-in-out infinite; }
+.ap-burst { animation: ap-burst 700ms var(--ease-out) forwards; }
+.ap-toast { animation: ap-toast 350ms var(--ease-out) both; }
+.ap-fill { animation: ap-fill 6s linear forwards; transform-origin: left; }
+
+/* View Transitions: card → product shared element */
+::view-transition-group(*) { animation-duration: 600ms; animation-timing-function: var(--ease-out); }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 350ms; }
+
+/* prefers-reduced-motion kills ALL animation */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}

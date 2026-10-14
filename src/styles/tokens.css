@@ -1,0 +1,44 @@
+/* ==========================================================================
+   Tokens — docs/design-v2.md
+   ========================================================================== */
+:root {
+  --white: #ffffff; /* page background — v2 is WHITE, not ivory */
+  --ink: #0a0a0f;
+  --ink-2: #3a3b45;
+  --muted: #6a6b75;
+  --faint: #8a8b93;
+  --hair: #ececea;
+  --line: #e3e3df;
+  --img: #f2f2ef;
+  --wash: #fafaf8;
+  --navy: #0b1c4f;
+  --navy-2: #1e3172;
+  --red: #d3262c;
+  --tan: #b07a4a;
+  --cloth: #f4f1ea;
+  --success: #1f7a4d;
+  --disabled: #b5b5b0;
+  --track: #d6d6d1;
+  --icon: #c9c9c4;
+
+  --serif: var(--font-serif), "Instrument Serif", Georgia, serif;
+  --sans: var(--font-sans), Inter, system-ui, sans-serif;
+  --mono: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
+
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-in-out: cubic-bezier(.76, 0, .24, 1);
+
+  --page-max: 1440px;
+  --gutter: 40px;
+  --header-h: 76px;
+  --ticker-h: 34px;
+  --frost: rgba(255, 255, 255, .82);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --gutter: 16px;
+    --header-h: 56px;
+    --ticker-h: 28px;
+  }
+}
