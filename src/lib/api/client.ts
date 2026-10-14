@@ -1,10 +1,11 @@
 /**
- * Typed HTTP client for the Amerapelle REST API (`${NEXT_PUBLIC_API_URL}/api/v1`).
+ * Typed HTTP client for the Amerapelle REST API. Browser → same-origin `/api/v1` (proxied to the API by
+ * next.config.ts rewrites, so the refresh cookie is first-party); server → `${NEXT_PUBLIC_API_URL}/api/v1`.
  * Single choke point for: base URL, JSON, auth headers, guest cart token,
  * 401 → refresh → retry, Nest error shape, and the mock fallback.
  * Components never call fetch directly — they use the domain modules in this folder.
  */
-import { API_BASE, IS_DEV, USE_MOCKS } from "../env";
+import { API_BASE, BROWSER_API_BASE, IS_DEV, USE_MOCKS } from "../env";
 import type { ApiErrorBody } from "../types";
 
 export class ApiError extends Error {
@@ -32,9 +33,12 @@ export type RequestOptions = {
   /** Return text instead of JSON */
   text?: boolean;
   signal?: AbortSignal;
+  /** Browser: call the API origin directly instead of the same-origin proxy (large uploads; Vercel caps proxied request bodies). */
+  direct?: boolean;
 };
 
 const isBrowser = typeof window !== "undefined";
+const BASE = isBrowser ? BROWSER_API_BASE : API_BASE;
 
 /* ---------------- token state (browser only, in memory) ---------------- */
 let accessToken: string | null = null;
@@ -152,7 +156,7 @@ async function raw<T>(path: string, opts: RequestOptions, retried = false): Prom
   if (USE_MOCKS || isUnreachable()) return viaMock<T>(path, opts);
 
   const qs = buildQuery(opts.query).toString();
-  const url = `${API_BASE}/${path.replace(/^\//, "")}${qs ? `?${qs}` : ""}`;
+  const url = `${opts.direct ? API_BASE : BASE}/${path.replace(/^\//, "")}${qs ? `?${qs}` : ""}`;
   const headers: Record<string, string> = { Accept: opts.text ? "text/plain, text/csv, text/html" : "application/json" };
   let body: BodyInit | undefined;
   if (opts.body instanceof FormData) body = opts.body;
@@ -188,7 +192,7 @@ async function raw<T>(path: string, opts: RequestOptions, retried = false): Prom
     // Network failure. In development fall back to the mock dataset so the UI stays usable.
     const callerAborted = !!opts.signal && err instanceof DOMException && err.name === "AbortError";
     if (IS_DEV && !callerAborted) {
-      if (!isUnreachable() && isBrowser) console.warn(`[api] ${API_BASE} unreachable — using mock data (dev only).`);
+      if (!isUnreachable() && isBrowser) console.warn(`[api] ${BASE} unreachable — using mock data (dev only).`);
       unreachableUntil = Date.now() + 30_000;
       return viaMock<T>(path, opts);
     }
@@ -198,6 +202,13 @@ async function raw<T>(path: string, opts: RequestOptions, retried = false): Prom
   if (res.status === 401 && opts.auth === "customer" && !retried && refreshHandler && path !== "auth/refresh") {
     const t = await refreshHandler();
     if (t) return raw<T>(path, opts, true);
+  }
+
+  // Dev only: the same-origin rewrite answers 5xx (not a network error) when the API is down — treat as unreachable.
+  if (IS_DEV && isBrowser && BASE.startsWith("/") && res.status >= 500 && !(res.headers.get("content-type") || "").includes("json")) {
+    if (!isUnreachable()) console.warn(`[api] ${BASE} proxy target unreachable — using mock data (dev only).`);
+    unreachableUntil = Date.now() + 30_000;
+    return viaMock<T>(path, opts);
   }
 
   if (!res.ok) {

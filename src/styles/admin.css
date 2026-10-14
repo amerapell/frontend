@@ -86,3 +86,40 @@
 .img-grid__thumb { display: grid; place-items: center; }
 .img-grid__thumb img { grid-area: 1 / 1; }
 .admin-card--focus { border-color: var(--ink); }
+
+/* Admin · single exchange */
+.ex-admin__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ex-admin__title { display: inline-flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ex-admin__title .status-pill { font-family: var(--sans); letter-spacing: 0; vertical-align: middle; }
+.ex-admin__actions .btn--short { height: 44px; padding: 0 20px; }
+.ex-admin__actions .btn--ghost { height: 44px; padding: 0 20px; }
+.ex-admin__credit { font-size: 32px; line-height: 1; }
+.ex-admin__items td { vertical-align: middle; }
+.ex-admin__thumbcell { width: 68px; }
+.ex-admin__thumb { position: relative; display: block; width: 56px; height: 70px; background: var(--img); overflow: hidden; }
+.ex-admin__name { font-size: 20px; line-height: 1.1; display: block; margin-bottom: 4px; }
+.ex-admin__reason { font-size: 28px; line-height: 1.05; margin: 0; }
+.ex-admin__quote { margin: 0; padding: 2px 0 2px 14px; border-left: 2px solid var(--navy); font-size: 14px; line-height: 22px; }
+.ex-admin__photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.ex-admin__photo { aspect-ratio: 4 / 5; padding: 0; border: 1px solid var(--line); background: var(--img); overflow: hidden; cursor: zoom-in; border-radius: 0; }
+.ex-admin__photo:hover, .ex-admin__photo:focus-visible { border-color: var(--ink); }
+.ex-admin__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ex-admin__large { background: var(--img); display: grid; place-items: center; }
+.ex-admin__large img { max-width: 100%; max-height: 70vh; object-fit: contain; display: block; }
+.ex-admin__timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; font-size: 13px; }
+.ex-admin__timeline li { display: grid; grid-template-columns: 200px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--hair); }
+.ex-admin__timeline li:last-child { border-bottom: 0; }
+@media (max-width: 900px) {
+  .ex-admin__timeline li { grid-template-columns: 1fr; gap: 2px; }
+  .ex-admin__reason { font-size: 24px; }
+  .ex-admin__actions .btn { flex: 1 1 auto; }
+  .ex-admin__grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .ex-admin__paid { display: none; }
+  .ex-admin__totallabel { padding-right: 0; }
+  .ex-admin__totallabel .mono-xs { display: block; margin-top: 2px; }
+  .ex-admin__name { font-size: 17px; }
+  .ex-admin__thumbcell { width: 60px; }
+  .ex-admin__thumb { width: 48px; height: 60px; }
+}

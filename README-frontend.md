@@ -27,6 +27,8 @@ npm run typecheck && npm run lint && npm run build
 
 ## Notes / assumptions
 
+- API calls from the browser go to same-origin `/api/v1/*`; `next.config.ts` rewrites them to `NEXT_PUBLIC_API_URL` (set it on Vercel, or the rewrite is skipped and the browser calls the API directly). This keeps the httpOnly `ap_rt` refresh cookie first-party so customers stay signed in on Safari and in-app browsers. Server-side fetches call the API URL directly.
+
 - Drop "first run closes in" countdown = `goLiveAt + 48h` (`FIRST_RUN_HOURS` in `src/lib/drop.ts`) — the contract has no end time.
 - Admin JWT is kept in `sessionStorage` (survives reload within the tab); the customer access token is memory-only.
 - UTM (`utm_source/medium/campaign`, or Instagram/TikTok/WhatsApp referrer) is captured on landing to localStorage + cookie and sent on `POST /cart`.

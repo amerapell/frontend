@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CheckRow, FieldBox, SelectBox, TextAreaBox } from "@/components/ui/Field";
@@ -58,12 +59,13 @@ export function ExchangesAdmin() {
           <li key={e.id} className="admin-card">
             <div className="row between wrap gap-12">
               <div className="stack">
-                <span className="serif admin-list__title">{e.number}</span>
+                <Link href={`/admin/exchanges/${e.id}`} className="serif admin-list__title">{e.number}</Link>
                 <span className="mono-xs">ORDER {e.orderNumber} · {upper(longDate(e.createdAt))}{e.email ? ` · ${e.email.toUpperCase()}` : ""}</span>
               </div>
               <span className="row gap-12">
                 <span className={`status-pill status-pill--${e.status.toLowerCase()}`}>{EXCHANGE_STATUS_LABEL[e.status]}</span>
                 <span className="tnum">{naira(e.creditKobo)}</span>
+                <Link href={`/admin/exchanges/${e.id}`} className="ap-link small-link">View →</Link>
               </span>
             </div>
             <p><b>{e.reason}</b>{e.note ? ` — ${e.note}` : ""}</p>

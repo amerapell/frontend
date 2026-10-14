@@ -23,6 +23,7 @@ import type {
   ZoneCode,
   AdminOrder,
   AdminOrderDetail,
+  AdminExchangeDetail,
 } from "../types";
 import { NG_LGAS, NG_STATES } from "../nigeria";
 import {
@@ -103,7 +104,7 @@ function seedOrders(): AdminOrder[] {
 function freshDB(): DB {
   return {
     carts: {},
-    user: { id: "usr_ada", email: "ada@example.com", firstName: "Ada", lastName: "Okafor", phone: "+2348030000000", creditBalanceKobo: 62500_00 },
+    user: { id: "usr_ada", email: "ada@example.com", firstName: "Ada", lastName: "Okafor", phone: "+2348030000000", emailVerified: true, creditBalanceKobo: 62500_00 },
     password: null,
     signedIn: false,
     addresses: [
@@ -121,6 +122,11 @@ function freshDB(): DB {
           { status: "ITEM_RECEIVED", at: iso(NOW - 31 * DAY), note: null },
           { status: "CREDIT_ISSUED", at: iso(NOW - 31 * DAY), note: null },
         ], createdAt: iso(NOW - 35 * DAY) },
+      { id: "exc_2032", number: "EX-2032", orderNumber: "AP-10482", status: "REQUESTED", reason: "Doesn't fit",
+        note: "The L is too loose across the shoulders — could I swap for an M in the same colour?",
+        photoUrls: ["https://placehold.co/900x1200/f2f0ea/0a0a0f?text=Front", "https://placehold.co/900x1200/f2f0ea/0a0a0f?text=Label"],
+        items: [{ orderItemId: "oi_2", name: "Silk camp-collar shirt", quantity: 1, valueKobo: 62500_00 }], creditKobo: 0,
+        history: [{ status: "REQUESTED", at: iso(NOW - 1 * DAY), note: null }], createdAt: iso(NOW - 1 * DAY) },
     ],
     credit: [{ id: "cr_1", amountKobo: 62500_00, reason: "EXCHANGE_CREDIT", createdAt: iso(NOW - 31 * DAY), expiresAt: iso(NOW + 334 * DAY) }],
     settings: structuredClone(MOCK_SETTINGS),
@@ -139,7 +145,7 @@ function freshDB(): DB {
     adminTotpPending: false,
     adminTotpEnabled: false,
     orderNotes: {},
-    seq: 2032,
+    seq: 2033,
   };
 }
 
@@ -273,6 +279,11 @@ function requireAuth(auth: boolean) {
   return d.user;
 }
 
+/** Older stored mock users have no flag: treat them as verified. */
+const isVerified = (u: User | null) => !!u && u.emailVerified !== false;
+/** Like the API: an unverified account sees no credit (the stored balance stays put until it verifies). */
+const publicUser = (u: User): User => ({ ...u, emailVerified: isVerified(u), creditBalanceKobo: isVerified(u) ? u.creditBalanceKobo : 0 });
+
 function quote(token: string, zone: ZoneCode, useCredit: boolean, signedIn: boolean) {
   const d = db();
   const c = cartView(token);
@@ -282,7 +293,7 @@ function quote(token: string, zone: ZoneCode, useCredit: boolean, signedIn: bool
   const free = (d.settings.freeDeliveryThresholdKobo != null && afterDisc >= d.settings.freeDeliveryThresholdKobo) || disc?.type === "FREE_DELIVERY";
   const deliveryKobo = free ? 0 : z?.feeKobo ?? 0;
   const total = afterDisc + deliveryKobo;
-  const avail = signedIn && d.user ? d.user.creditBalanceKobo : 0;
+  const avail = signedIn && d.user && isVerified(d.user) ? d.user.creditBalanceKobo : 0;
   const applied = useCredit ? Math.min(avail, total) : 0;
   return {
     subtotalKobo: c.subtotalKobo, discountKobo: c.discountKobo, deliveryKobo, creditAvailableKobo: avail, creditAppliedKobo: applied,
@@ -527,17 +538,35 @@ export async function mockRoute(req: MockRequest): Promise<unknown> {
 
   // ---------- auth ----------
   if (is("POST", "auth/register")) {
-    d.user = { id: "usr_ada", email: String(body.email), firstName: String(body.firstName || "Ada"), lastName: String(body.lastName || ""), phone: (body.phone as string) ?? null, creditBalanceKobo: d.user?.creditBalanceKobo ?? 0 };
+    d.user = { id: "usr_ada", email: String(body.email), firstName: String(body.firstName || "Ada"), lastName: String(body.lastName || ""), phone: (body.phone as string) ?? null, emailVerified: false, creditBalanceKobo: d.user?.creditBalanceKobo ?? 0 };
     d.password = String(body.password);
     d.signedIn = true;
-    return done({ accessToken: "mock_access", user: d.user });
+    return done({ accessToken: "mock_access", user: publicUser(d.user) });
   }
   if (is("POST", "auth/login")) {
     if (!body.email || !body.password) throw new MockHttpError(400, "Enter your email and password");
     if (String(body.password).length < 4) throw new MockHttpError(401, "Email or password is incorrect");
     d.signedIn = true;
     d.user = { ...d.user!, email: String(body.email) };
-    return done({ accessToken: "mock_access", user: d.user });
+    return done({ accessToken: "mock_access", user: publicUser(d.user) });
+  }
+  // Any credential works in mocks; Google has verified the email, so the account is verified.
+  if (is("POST", "auth/google")) {
+    if (!body.credential) throw new MockHttpError(400, "credential should not be empty");
+    d.signedIn = true;
+    d.user = { ...d.user!, emailVerified: true };
+    return done({ accessToken: "mock_access", user: publicUser(d.user) });
+  }
+  // Token "expired" / "invalid" simulate a bad link; anything else verifies the demo user (idempotent).
+  if (is("POST", "auth/verify-email")) {
+    const token = String(body.token ?? "");
+    if (!token || token === "expired" || token === "invalid" || !d.user) throw new MockHttpError(400, "This link is invalid or has expired");
+    d.user = { ...d.user, emailVerified: true };
+    return done(publicUser(d.user));
+  }
+  if (is("POST", "auth/resend-verification")) {
+    const u = requireAuth(req.auth);
+    return { ok: true, sent: !isVerified(u) };
   }
   if (is("POST", "auth/refresh")) {
     if (!d.signedIn) throw new MockHttpError(401, "No session");
@@ -554,14 +583,15 @@ export async function mockRoute(req: MockRequest): Promise<unknown> {
   }
 
   // ---------- account ----------
-  if (is("GET", "me")) return requireAuth(req.auth);
+  if (is("GET", "me")) return publicUser(requireAuth(req.auth));
   if (is("PATCH", "me")) {
     const u = requireAuth(req.auth);
     d.user = { ...u, ...(body as Partial<User>) };
-    return done(d.user);
+    return done(publicUser(d.user));
   }
   if (is("GET", "me/orders")) {
     const u = requireAuth(req.auth);
+    if (!isVerified(u)) return []; // demo orders are all pre-account guest orders
     return d.orders.filter((o) => o.email === u.email || o.email === "ada@example.com");
   }
   if ((m = is("GET", "me/orders/:number"))) {
@@ -605,7 +635,7 @@ export async function mockRoute(req: MockRequest): Promise<unknown> {
   }
   if (is("GET", "me/credit")) {
     const u = requireAuth(req.auth);
-    return { balanceKobo: u.creditBalanceKobo, entries: d.credit };
+    return isVerified(u) ? { balanceKobo: u.creditBalanceKobo, entries: d.credit } : { balanceKobo: 0, entries: [] };
   }
   if (is("GET", "me/data-export")) {
     const u = requireAuth(req.auth);
@@ -625,7 +655,7 @@ export async function mockRoute(req: MockRequest): Promise<unknown> {
 
   // ---------- exchanges ----------
   if (is("GET", "me/exchanges")) {
-    requireAuth(req.auth);
+    if (!isVerified(requireAuth(req.auth))) return [];
     return d.exchanges;
   }
   if (is("POST", "exchanges")) {
@@ -786,13 +816,6 @@ export async function mockRoute(req: MockRequest): Promise<unknown> {
       utm: { source: o.utmSource, medium: o.utmSource && o.utmSource !== "direct" ? "social" : null, campaign: null },
       notes: d.orderNotes[o.id] ?? [],
     });
-    if ((m = is("POST", "admin/orders/:id/refund"))) {
-      const o = d.orders.find((x) => x.id === m!.id);
-      if (!o) throw new MockHttpError(404, "Order not found");
-      if (o.status !== "CANCELLED" || !o.paidAt) throw new MockHttpError(400, "Only cancelled, paid orders can be refunded");
-      d.orderNotes[o.id] = [...(d.orderNotes[o.id] ?? []), { id: rid("note"), body: `Provider refund of ${o.amountDueKobo} kobo requested via Paystack`, author: "admin", createdAt: new Date().toISOString() }];
-      return done(detail(o));
-    }
     if ((m = is("GET", "admin/orders/:id"))) {
       const o = d.orders.find((x) => x.id === m!.id || x.number === m!.id);
       if (!o) throw new MockHttpError(404, "Order not found");
@@ -812,10 +835,31 @@ export async function mockRoute(req: MockRequest): Promise<unknown> {
       return done(detail(o));
     }
     if ((m = is("GET", "admin/orders/:id/packing-slip"))) return "<html><body>Packing slip</body></html>";
+    const exchangeDetail = (e: Exchange): AdminExchangeDetail => {
+      const o = d.orders.find((x) => x.number === e.orderNumber);
+      const until = o?.deliveredAt ? new Date(o.deliveredAt).getTime() + d.settings.exchangeWindowDays * DAY : null;
+      return {
+        ...e,
+        email: o?.email ?? "ada@example.com",
+        orderId: o?.id ?? "",
+        orderStatus: o?.status ?? "DELIVERED",
+        customer: { name: o?.delivery.address?.fullName ?? null, email: o?.email ?? "ada@example.com", phone: o?.phone ?? null, userId: o?.email === "ada@example.com" ? "usr_ada" : null },
+        items: e.items.map((i) => {
+          const oi = o?.items.find((x) => x.id === i.orderItemId);
+          const p = d.products.find((x) => x.name === i.name);
+          return { ...i, number: oi?.number ?? null, sku: null, colour: oi?.colour ?? null, size: oi?.size ?? null, imageUrl: oi?.imageUrl ?? p?.images[0]?.url ?? null, paidUnitKobo: oi?.unitKobo ?? null };
+        }),
+        deliveredAt: o?.deliveredAt ?? null,
+        exchangeWindowDays: d.settings.exchangeWindowDays,
+        exchangeableUntil: until ? new Date(until).toISOString() : null,
+        requestedWithinWindow: until !== null && new Date(e.createdAt).getTime() <= until,
+        updatedAt: e.history[e.history.length - 1]?.at ?? e.createdAt,
+      };
+    };
     if ((m = is("GET", "admin/exchanges/:id"))) {
       const e = d.exchanges.find((x) => x.id === m!.id);
       if (!e) throw new MockHttpError(404, "Exchange not found");
-      return e;
+      return exchangeDetail(e);
     }
     if (is("GET", "admin/exchanges")) {
       const status = q.get("status");
@@ -826,7 +870,9 @@ export async function mockRoute(req: MockRequest): Promise<unknown> {
       if (!e) throw new MockHttpError(404, "Exchange not found");
       const next = EX_FLOW[m.action];
       if (!next) throw new MockHttpError(400, "Unknown action");
+      if (m.action === "decline" && !String(body.note ?? "").trim()) throw new MockHttpError(400, "Give the customer a reason for declining");
       if (m.action === "receive") {
+        e.creditKobo = e.items.reduce((n, i) => n + i.valueKobo, 0);
         e.history.push({ status: "ITEM_RECEIVED", at: new Date().toISOString(), note: null });
         if (d.user) d.user.creditBalanceKobo += e.creditKobo;
         d.credit.push({ id: rid("cr"), amountKobo: e.creditKobo, reason: "EXCHANGE_CREDIT", createdAt: new Date().toISOString(), expiresAt: d.settings.creditExpiryDays ? new Date(Date.now() + d.settings.creditExpiryDays * DAY).toISOString() : null });
@@ -837,7 +883,7 @@ export async function mockRoute(req: MockRequest): Promise<unknown> {
         const o = d.orders.find((x) => x.number === e.orderNumber);
         if (o) o.status = "EXCHANGED";
       }
-      return done(e);
+      return done(exchangeDetail(e));
     }
     if (is("GET", "admin/discounts")) return d.discounts;
     if ((m = is("GET", "admin/discounts/:id"))) {

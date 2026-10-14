@@ -3,6 +3,7 @@ import type {
   AdminCollection,
   AdminDashboard,
   AdminExchange,
+  AdminExchangeDetail,
   AdminLoginResponse,
   AdminOrder,
   AdminOrderDetail,
@@ -40,7 +41,7 @@ export const adminApi = {
   importStock: (file: File) => {
     const fd = new FormData();
     fd.append("file", file);
-    return api.post<{ updated: number; errors: string[] }>("admin/stock/import", fd, a);
+    return api.post<{ updated: number; errors: string[] }>("admin/stock/import", fd, { ...a, direct: true });
   },
   signUpload: () => api.post<CloudinarySignature>("admin/uploads/sign", undefined, a),
 
@@ -53,13 +54,12 @@ export const adminApi = {
   orders: (q?: { status?: string; provider?: string; q?: string; page?: number }) => api.get<Paginated<AdminOrder>>("admin/orders", { ...a, query: q }),
   order: (id: string) => api.get<AdminOrderDetail>(`admin/orders/${id}`, a),
   updateOrder: (id: string, b: { status?: OrderStatus; note?: string }) => api.patch<AdminOrderDetail>(`admin/orders/${id}`, b, a),
-  refundOrder: (id: string) => api.post<AdminOrderDetail>(`admin/orders/${id}/refund`, undefined, a),
   packingSlip: (id: string) => api.get<string>(`admin/orders/${id}/packing-slip`, { ...a, text: true }),
 
   exchanges: (status?: string) => api.get<AdminExchange[]>("admin/exchanges", { ...a, query: { status } }),
-  exchange: (id: string) => api.get<AdminExchange>(`admin/exchanges/${id}`, a),
+  exchange: (id: string) => api.get<AdminExchangeDetail>(`admin/exchanges/${id}`, a),
   exchangeAction: (id: string, action: "approve" | "decline" | "receive" | "complete", note?: string) =>
-    api.post<AdminExchange>(`admin/exchanges/${id}/${action}`, { note }, a),
+    api.post<AdminExchangeDetail>(`admin/exchanges/${id}/${action}`, { note }, a),
 
   discounts: () => api.get<Discount[]>("admin/discounts", a),
   discount: (id: string) => api.get<Discount>(`admin/discounts/${id}`, a),

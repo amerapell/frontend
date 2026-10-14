@@ -86,20 +86,6 @@ export function OrderAdminDetail({ id }: { id: string }) {
   }, [o]);
   if (error) return <p className="form-error">{error}</p>;
   if (!o) return <p className="mono-label">LOADING…</p>;
-  const refund = async () => {
-    if (!confirm(`Refund ${naira(o.amountDueKobo)} to the customer's card via Paystack? This can't be undone.`)) return;
-    setBusy(true);
-    try {
-      setData(await adminApi.refundOrder(o.id));
-      toast.show({ message: "Refund requested from Paystack." });
-    } catch (e) {
-      onError(e);
-      toast.show({ message: apiMessage(e), tone: "error" });
-    } finally {
-      setBusy(false);
-    }
-  };
-  const canRefund = o.status === "CANCELLED" && !!o.paidAt && o.payment?.provider === "PAYSTACK";
   const patch = async (b: { status?: OrderStatus; note?: string }) => {
     setBusy(true);
     try {
@@ -137,12 +123,6 @@ export function OrderAdminDetail({ id }: { id: string }) {
             <button className="btn btn--short" disabled={busy || status === o.status || !status} onClick={() => patch({ status: status as OrderStatus })}>Update status</button>
           </div>
           <p className="mono-xs">DISPATCHED, READY FOR PICKUP AND DELIVERED EMAIL THE CUSTOMER.</p>
-          {canRefund && (
-            <div className="notice notice--red row between wrap gap-12">
-              <span>Cancelled after payment. Refund {naira(o.amountDueKobo)} via Paystack (PAY-7).</span>
-              <button className="btn btn--danger btn--short" disabled={busy} onClick={refund}>Refund…</button>
-            </div>
-          )}
           <dl className="order-meta">
             <div><dt className="mono-xs">PAYMENT</dt><dd>{o.payment?.provider ?? "—"} · {o.payment?.status ?? "—"}{o.payment?.reference ? ` · ${o.payment.reference}` : ""}</dd></div>
             <div><dt className="mono-xs">SOURCE · UTM</dt><dd>{[o.utm.source ?? "direct", o.utm.medium, o.utm.campaign].filter(Boolean).join(" / ")}</dd></div>

@@ -265,6 +265,8 @@ export type User = {
   firstName: string;
   lastName: string;
   phone: string | null;
+  /** False until the customer confirms their email; credit and past guest orders stay hidden (credit reads 0). */
+  emailVerified: boolean;
   creditBalanceKobo: Money;
 };
 
@@ -349,7 +351,7 @@ export type AdminDashboard = {
 /** GET /admin/orders list item */
 export type AdminOrder = Order & { utmSource: string | null };
 
-/** GET/PATCH /admin/orders/:id (and refund) */
+/** GET/PATCH /admin/orders/:id */
 export type AdminOrderDetail = Order & {
   userId: string | null;
   discountCode: string | null;
@@ -359,6 +361,31 @@ export type AdminOrderDetail = Order & {
 };
 
 export type AdminExchange = Exchange & { email?: string | null };
+
+/** GET /admin/exchanges/:id (and every admin exchange action's response). */
+export type AdminExchangeDetail = Omit<AdminExchange, "items"> & {
+  email: string;
+  orderId: string;
+  orderStatus: OrderStatus;
+  customer: { name: string | null; email: string; phone: string | null; userId: string | null };
+  items: {
+    orderItemId: string;
+    name: string;
+    quantity: number;
+    valueKobo: Money;
+    number: string | null;
+    sku: string | null;
+    colour: string | null;
+    size: string | null;
+    imageUrl: string | null;
+    paidUnitKobo: Money | null;
+  }[];
+  deliveredAt: string | null;
+  exchangeWindowDays: number;
+  exchangeableUntil: string | null;
+  requestedWithinWindow: boolean;
+  updatedAt: string;
+};
 
 export type DiscountType = "PERCENT" | "FIXED" | "FREE_DELIVERY";
 

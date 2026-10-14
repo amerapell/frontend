@@ -8,6 +8,7 @@ import { useWishlist } from "@/context/WishlistContext";
 import { accountApi, exchangesApi } from "@/lib/api";
 import type { Address, CreditLedger, Exchange, Order } from "@/lib/types";
 import { AuthForms } from "./AuthForms";
+import { CreditLocked, VerifyEmailView, VerifyNoticeBar } from "./EmailVerification";
 
 type AccountData = {
   orders: Order[] | null;
@@ -67,6 +68,9 @@ export function AccountShell({ children, topBar }: { children: ReactNode; topBar
     if (status === "authed" && next && next.startsWith("/") && !next.startsWith("/account")) router.replace(next);
   }, [status, params, router]);
 
+  // /account?view=verify&token=… (link from the "Confirm your email" email) works signed in or not.
+  if (params.get("view") === "verify") return <VerifyEmailView token={params.get("token") ?? ""} onVerified={reload} />;
+
   if (status === "loading") {
     return (
       <div className="container empty empty--page" aria-busy="true">
@@ -88,6 +92,7 @@ export function AccountShell({ children, topBar }: { children: ReactNode; topBar
   return (
     <Ctx.Provider value={{ orders, addresses, credit, exchanges, reload, setAddresses, pendingCredit, setPendingCredit }}>
       {topBar}
+      {user.emailVerified === false && <VerifyNoticeBar />}
       <div className="container account">
         <aside className="account__aside">
           <div>
@@ -111,11 +116,15 @@ export function AccountShell({ children, topBar }: { children: ReactNode; topBar
               <span className="mono-xs">→</span>
             </button>
           </nav>
-          <CreditCard
-            balanceKobo={pendingCredit ? pendingCredit.amountKobo : credit?.balanceKobo ?? user.creditBalanceKobo}
-            state={pendingCredit ? "PENDING · ADDED ON RECEIPT" : "AVAILABLE"}
-            reference={pendingCredit?.ref ?? latestCreditRef}
-          />
+          {user.emailVerified === false ? (
+            <CreditLocked />
+          ) : (
+            <CreditCard
+              balanceKobo={pendingCredit ? pendingCredit.amountKobo : credit?.balanceKobo ?? user.creditBalanceKobo}
+              state={pendingCredit ? "PENDING · ADDED ON RECEIPT" : "AVAILABLE"}
+              reference={pendingCredit?.ref ?? latestCreditRef}
+            />
+          )}
           {credit && credit.entries.some((e) => e.expiresAt) && !pendingCredit && (
             <p className="mono-xs">
               CREDIT NEVER PAID OUT AS CASH ·{" "}

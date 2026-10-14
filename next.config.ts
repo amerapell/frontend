@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+const apiUrl = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -16,6 +17,11 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+  // First-party API: the browser calls /api/v1/* on this origin and Vercel proxies it to Railway, so the
+  // httpOnly refresh cookie (ap_rt) is set on the shop's own domain instead of being a third-party cookie.
+  async rewrites() {
+    return apiUrl ? [{ source: "/api/v1/:path*", destination: `${apiUrl}/api/v1/:path*` }] : [];
   },
   async headers() {
     return [

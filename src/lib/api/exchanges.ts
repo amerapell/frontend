@@ -7,6 +7,6 @@ export const exchangesApi = {
   uploadPhoto: (file: File) => {
     const fd = new FormData();
     fd.append("file", file);
-    return api.post<{ url: string }>("uploads/exchange-photo", fd, { auth: "customer" });
+    return api.post<{ url: string }>("uploads/exchange-photo", fd, { auth: "customer", direct: true });
   },
 };

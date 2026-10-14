@@ -9,6 +9,8 @@ type AuthValue = {
   user: User | null;
   status: Status;
   login: (email: string, password: string) => Promise<User>;
+  /** Google Identity Services credential (ID token) → same session as an email login. */
+  loginWithGoogle: (credential: string) => Promise<User>;
   register: (b: { email: string; password: string; firstName: string; lastName: string; phone?: string; marketingConsent: boolean }) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -76,6 +78,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return r.user;
   }, []);
 
+  const loginWithGoogle = useCallback(async (credential: string) => {
+    const r = await authApi.google(credential);
+    tokens.setAccess(r.accessToken);
+    setUser(r.user);
+    setStatus("authed");
+    return r.user;
+  }, []);
+
   const register = useCallback<AuthValue["register"]>(async (b) => {
     const r = await authApi.register(b);
     tokens.setAccess(r.accessToken);
@@ -104,7 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const value = useMemo(() => ({ user, status, login, register, logout, refreshUser }), [user, status, login, register, logout, refreshUser]);
+  const value = useMemo(
+    () => ({ user, status, login, loginWithGoogle, register, logout, refreshUser }),
+    [user, status, login, loginWithGoogle, register, logout, refreshUser],
+  );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

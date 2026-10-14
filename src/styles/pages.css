@@ -608,3 +608,54 @@
 .credit-history { list-style: none; margin: 0; padding: 0; }
 .credit-history li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 20px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--hair); font-size: 14px; }
 @media (max-width: 767px) { .credit-history li { grid-template-columns: 1fr auto; } .credit-history li .mono-xs { grid-column: 1; grid-row: 2; } }
+
+/* ---------------------------------------------------------------- Email verification + Google sign-in */
+.verify-bar { background: var(--wash); border-bottom: 1px solid var(--hair); }
+.verify-bar__inner { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 8px; padding-bottom: 8px; }
+.verify-bar__text { margin: 0; display: flex; align-items: baseline; gap: 14px; font-size: 13px; line-height: 20px; color: var(--ink); }
+.verify-bar__label { color: var(--navy); white-space: nowrap; }
+.verify-bar__btn { flex: none; min-width: 132px; }
+.verify-bar__btn:disabled { background: transparent; color: var(--faint); border-color: var(--line); }
+
+.credit-locked {
+  min-height: 0; width: 100%; border: 1px solid var(--ink); background: var(--white); padding: 20px;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 28px;
+}
+.credit-locked__top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.credit-locked__state { color: var(--navy); }
+.credit-locked__bottom { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.credit-locked__title { font-size: 28px; line-height: 1; letter-spacing: -0.01em; }
+.credit-locked__copy { margin: 0; font-size: 13px; line-height: 20px; color: var(--ink-2); }
+.credit-locked__btn { color: var(--ink); }
+.credit-locked__btn:disabled { color: var(--faint); background-image: none; }
+
+.verify { padding-top: 96px; padding-bottom: 160px; display: flex; justify-content: center; }
+.verify__body { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 16px; border-top: 1px solid var(--ink); padding-top: 24px; }
+.verify__title { font-size: 72px; line-height: .9; letter-spacing: -0.03em; margin: 0; }
+.verify__cta { margin-top: 12px; }
+
+.google-btn { position: relative; width: 100%; height: 56px; }
+.google-btn__face {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
+  background: var(--white); color: var(--ink); border: 1px solid var(--line); border-radius: 0;
+  font-family: var(--sans); font-size: 14px; font-weight: 500; transition: border-color 250ms ease;
+}
+.google-btn:hover .google-btn__face { border-color: var(--ink); }
+.google-btn__face:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.google-btn__face:disabled { color: var(--faint); }
+/* Google's own button, invisible, stretched over ours so the click opens Google's popup. */
+.google-btn__gsi { position: absolute; top: 0; left: 0; transform-origin: 0 0; opacity: .0001; overflow: hidden; }
+.google-btn.is-disabled .google-btn__gsi { pointer-events: none; }
+.google-btn:focus-within .google-btn__face { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.or-divider { display: flex; align-items: center; gap: 16px; }
+.or-divider::before, .or-divider::after { content: ""; flex: 1; border-top: 1px solid var(--hair); }
+
+@media (max-width: 767px) {
+  .verify-bar__inner { flex-direction: column; align-items: stretch; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
+  .verify-bar__text { flex-direction: column; gap: 4px; }
+  .verify-bar__btn { width: 100%; }
+  .verify { padding-top: 40px; padding-bottom: 96px; }
+  .verify__title { font-size: 48px; }
+  .account__aside .credit-locked { max-width: 360px; }
+}

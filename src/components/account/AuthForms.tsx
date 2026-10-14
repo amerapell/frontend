@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CheckRow, FieldBox } from "@/components/ui/Field";
 import { useAuth } from "@/context/AuthContext";
 import { authApi } from "@/lib/api";
+import { GOOGLE_CLIENT_ID, GoogleSignIn, OrDivider } from "./GoogleSignIn";
 import { apiMessage, toE164NG } from "@/lib/format";
 
 type View = "signin" | "register" | "forgot" | "reset";
@@ -24,7 +25,7 @@ export function AuthForms() {
     else q.set("view", v);
     router.replace(`/account${q.toString() ? `?${q}` : ""}`, { scroll: false });
   };
-  const { login, register } = useAuth();
+  const { login, loginWithGoogle, register } = useAuth();
   const [email, setEmail] = useState(params.get("email") ?? "");
   const [password, setPassword] = useState("");
   const [firstName, setFirst] = useState("");
@@ -83,6 +84,13 @@ export function AuthForms() {
             <button role="tab" aria-selected={view === "signin"} className={`tab${view === "signin" ? " is-on" : ""}`} onClick={() => setView("signin")}>Sign in</button>
             <button role="tab" aria-selected={view === "register"} className={`tab${view === "register" ? " is-on" : ""}`} onClick={() => setView("register")}>Create account</button>
           </div>
+        )}
+
+        {(view === "signin" || view === "register") && GOOGLE_CLIENT_ID && (
+          <>
+            <GoogleSignIn disabled={busy} onCredential={(credential) => run(async () => { await loginWithGoogle(credential); after(); })} />
+            <OrDivider />
+          </>
         )}
 
         {view === "signin" && (
