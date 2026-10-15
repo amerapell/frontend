@@ -21,7 +21,7 @@
   --track: #d6d6d1;
   --icon: #c9c9c4;
 
-  --serif: var(--font-serif), "Instrument Serif", Georgia, serif;
+  --serif: var(--font-serif), "Montserrat", "Helvetica Neue", Arial, sans-serif; /* display face (logo typeface) */
   --sans: var(--font-sans), Inter, system-ui, sans-serif;
   --mono: var(--font-mono), "IBM Plex Mono", ui-monospace, monospace;
 

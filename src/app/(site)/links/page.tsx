@@ -9,6 +9,7 @@ import { whatsappLink } from "@/lib/product";
 import { naira, italicWord } from "@/lib/format";
 import { ProductImage } from "@/components/product/ProductImage";
 import { iconKind } from "@/lib/product";
+import { Logo } from "@/components/brand/Logo";
 
 export const revalidate = 60;
 export const metadata: Metadata = { title: "Links", description: "The current drop, new in and the Amerapelle collections — all in one place." };
@@ -26,7 +27,7 @@ export default async function LinksPage() {
     <main id="main" tabIndex={-1} className="links">
       <div className="links__phone">
         <header className="links__head">
-          <span className="serif links__mark">Amerapelle</span>
+          <span className="links__mark"><Logo variant="stacked" size={72} /></span>
           <span className="mono-xs">LAGOS · LUXURY · LIMITED RUNS</span>
         </header>
 

@@ -1,5 +1,6 @@
 import { AdirePattern } from "@/components/patterns/Patterns";
 import { naira } from "@/lib/format";
+import { Logo } from "@/components/brand/Logo";
 
 /** Exchange-credit card: 1.586 aspect, Adire at 55% motifs, serif balance. */
 export function CreditCard({ balanceKobo, state = "AVAILABLE", reference }: { balanceKobo: number; state?: string; reference?: string | null }) {
@@ -7,7 +8,7 @@ export function CreditCard({ balanceKobo, state = "AVAILABLE", reference }: { ba
     <div className="credit-card on-dark" role="img" aria-label={`Exchange credit ${naira(balanceKobo)}, ${state.toLowerCase()}`}>
       <AdirePattern muted className="credit-card__bg" />
       <div className="credit-card__top">
-        <span className="serif credit-card__mark">Amerapelle</span>
+        <span className="credit-card__mark"><Logo size={24} tone="light" /></span>
         <span className="credit-card__label">EXCHANGE CREDIT</span>
       </div>
       <div className="credit-card__bottom">

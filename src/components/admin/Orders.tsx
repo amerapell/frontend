@@ -7,6 +7,7 @@ import { adminApi } from "@/lib/api";
 import { ORDER_STATUS_LABEL, apiMessage, longDate, naira, upper } from "@/lib/format";
 import type { AdminOrderDetail, OrderStatus } from "@/lib/types";
 import { AdminHead, useAdmin, useAsync } from "./AdminShell";
+import { Logo } from "@/components/brand/Logo";
 
 const STATUSES = Object.keys(ORDER_STATUS_LABEL) as OrderStatus[];
 
@@ -191,7 +192,7 @@ export function PackingSlip({ id }: { id: string }) {
   return (
     <div className="slip">
       <div className="slip__head">
-        <span className="serif slip__mark">Amerapelle</span>
+        <span className="slip__mark"><Logo size={34} /></span>
         <span className="mono-label">PACKING SLIP · {o.number}</span>
       </div>
       <div className="slip__grid">

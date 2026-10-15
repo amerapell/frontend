@@ -6,6 +6,7 @@ import { useUI } from "@/context/UIContext";
 import { useCart } from "@/context/CartContext";
 import { BagPill } from "./BagPill";
 import { BackIcon, MenuIcon, SearchIcon } from "./Icons";
+import { Logo } from "@/components/brand/Logo";
 
 export const NAV = [
   { slug: "women", label: "Women" },
@@ -34,7 +35,7 @@ export function Header() {
       {/* Desktop — 76px */}
       <div className="site-header__inner container hide-mobile">
         <Link href="/" className="wordmark" aria-label="Amerapelle — home">
-          Amerapelle
+          <Logo size={34} title="Amerapelle" />
         </Link>
         <nav aria-label="Main" className="site-nav">
           {items.map((n) => (
@@ -74,8 +75,8 @@ export function Header() {
             <MenuIcon />
           </button>
         )}
-        <Link href="/" className="wordmark wordmark--mobile">
-          Amerapelle
+        <Link href="/" className="wordmark wordmark--mobile" aria-label="Amerapelle — home">
+          <Logo size={26} title="Amerapelle" />
         </Link>
         <Link href="/bag" className="icon-btn" aria-label={`Bag, ${count} ${count === 1 ? "item" : "items"}`}>
           <BagPill />

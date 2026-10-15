@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { tokens, isUsingMocks } from "@/lib/api";
 import { ApiError } from "@/lib/api/client";
+import { Logo } from "@/components/brand/Logo";
 
 const TOTP_FLAG = "ap_admin_totp_off";
 /** Remembers (per tab) that this admin signed in without two-step verification. */
@@ -86,7 +87,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <button className="icon-btn admin__menu" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden><path d="M4 9h16M4 15h10" /></svg>
           </button>
-          <Link href="/admin" className="serif admin__mark">Amerapelle</Link>
+          <Link href="/admin" className="admin__mark" aria-label="Amerapelle admin"><Logo size={28} /></Link>
           <span className="mono-label">ADMIN{isUsingMocks() ? " · MOCK DATA" : ""}</span>
           <span className="admin__spacer" />
           <a href="/" target="_blank" rel="noopener" className="ap-link small-link">View store ↗</a>

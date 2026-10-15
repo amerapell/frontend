@@ -6,6 +6,7 @@ import { AsookeStripe } from "@/components/patterns/Patterns";
 import { useSettings } from "@/context/SettingsContext";
 import { contentApi } from "@/lib/api";
 import { apiMessage } from "@/lib/format";
+import { Logo } from "@/components/brand/Logo";
 
 function Newsletter() {
   const [email, setEmail] = useState("");
@@ -43,7 +44,7 @@ function Newsletter() {
   );
 }
 
-/** Footer: 40px Aso-oke band. Home = 4 columns + giant cropped serif wordmark; inner pages = compact row. */
+/** Footer: 40px Aso-oke band. Home = 4 columns + giant cropped wordmark; inner pages = compact row. */
 export function Footer({ variant }: { variant?: "home" | "compact" }) {
   const pathname = usePathname();
   const { settings } = useSettings();
@@ -55,7 +56,7 @@ export function Footer({ variant }: { variant?: "home" | "compact" }) {
       <footer className="footer footer--compact">
         <AsookeStripe height={40} />
         <div className="container footer__row">
-          <Link href="/" className="serif footer__mark">Amerapelle</Link>
+          <Link href="/" className="footer__mark" aria-label="Amerapelle — home"><Logo size={30} /></Link>
           <nav aria-label="Footer" className="footer__links">
             <Link href="/policies/delivery">Delivery</Link>
             <Link href="/policies/exchanges">Exchanges</Link>
@@ -109,7 +110,7 @@ export function Footer({ variant }: { variant?: "home" | "compact" }) {
         </span>
       </div>
       <div className="container footer__giant-wrap" aria-hidden>
-        <div className="footer__giant serif">Amerapelle</div>
+        <div className="footer__giant serif">AMERAPELLE</div>
       </div>
     </footer>
   );

@@ -10,6 +10,7 @@ import { useWishlist } from "@/context/WishlistContext";
 import { naira, upper } from "@/lib/format";
 import { categoryOf, productUrl, whatsappLink } from "@/lib/product";
 import type { Product } from "@/lib/types";
+import { Logo } from "@/components/brand/Logo";
 
 const TONES = [
   { base: "#1e3172", tone: "#22357a", ink: "#e7eaf4", dark: true, pattern: false },
@@ -157,7 +158,7 @@ export function ShopTheReel({ looks }: { looks: Product[] }) {
         </div>
 
         <div className="reel__chrome" style={{ color: tone.dark ? "#ffffff" : "#0a0a0f" }}>
-          <Link href="/" className="serif reel__mark" style={{ color: "inherit" }}>Amerapelle</Link>
+          <Link href="/" className="reel__mark" aria-label="Amerapelle — home"><Logo size={24} tone="light" /></Link>
           <span className="row gap-2">
             <Link href="/bag" className="mono-xs reel__bag" style={{ color: "inherit" }} data-bag-pill>BAG {count}</Link>
             <button type="button" className="icon-btn" aria-label="Close" style={{ color: "inherit" }} onClick={() => router.push("/")}>

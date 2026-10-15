@@ -7,19 +7,28 @@ import localFont from "next/font/local";
  * face and a latin-ext face (which carries ₦, U+20A6); both are chained in the CSS
  * variable so the naira sign renders in the brand faces.
  */
-export const serifLatin = localFont({
+/** Display face: Montserrat — the typeface of the Amerapelle logo wordmark. */
+export const displayLatin = localFont({
   src: [
-    { path: "./fonts/instrument-serif-latin-400-normal.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/instrument-serif-latin-400-italic.woff2", weight: "400", style: "italic" },
+    { path: "./fonts/montserrat-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/montserrat-latin-500-italic.woff2", weight: "500", style: "italic" },
+    { path: "./fonts/montserrat-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/montserrat-latin-600-italic.woff2", weight: "600", style: "italic" },
+    { path: "./fonts/montserrat-latin-700-normal.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/montserrat-latin-700-italic.woff2", weight: "700", style: "italic" },
   ],
   display: "swap",
   adjustFontFallback: false,
   preload: true,
 });
-export const serifExt = localFont({
+export const displayExt = localFont({
   src: [
-    { path: "./fonts/instrument-serif-latin-ext-400-normal.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/instrument-serif-latin-ext-400-italic.woff2", weight: "400", style: "italic" },
+    { path: "./fonts/montserrat-latin-ext-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/montserrat-latin-ext-500-italic.woff2", weight: "500", style: "italic" },
+    { path: "./fonts/montserrat-latin-ext-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/montserrat-latin-ext-600-italic.woff2", weight: "600", style: "italic" },
+    { path: "./fonts/montserrat-latin-ext-700-normal.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/montserrat-latin-ext-700-italic.woff2", weight: "700", style: "italic" },
   ],
   display: "swap",
   adjustFontFallback: false,
@@ -55,9 +64,9 @@ export const mono = localFont({
   preload: false,
 });
 
-/** CSS custom properties exposed on <html>: --font-serif, --font-sans, --font-mono */
+/** CSS custom properties exposed on <html>. --font-serif is the display slot (now Montserrat, from the logo). */
 export const fontVars = {
-  "--font-serif": `${serifLatin.style.fontFamily}, ${serifExt.style.fontFamily}`,
+  "--font-serif": `${displayLatin.style.fontFamily}, ${displayExt.style.fontFamily}`,
   "--font-sans": `${sansLatin.style.fontFamily}, ${sansExt.style.fontFamily}`,
   "--font-mono": mono.style.fontFamily,
 } as CSSProperties;

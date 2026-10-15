@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   applicationName: "Amerapelle",
   openGraph: { type: "website", siteName: "Amerapelle", locale: "en_NG", url: SITE_URL },
   twitter: { card: "summary_large_image" },
-  icons: { icon: "/icon.svg" },
+  icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {

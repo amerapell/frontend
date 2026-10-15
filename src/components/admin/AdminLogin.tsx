@@ -5,6 +5,7 @@ import { FieldBox } from "@/components/ui/Field";
 import { adminApi, tokens } from "@/lib/api";
 import { apiMessage } from "@/lib/format";
 import { setAdminTotpFlag } from "./AdminShell";
+import { Logo } from "@/components/brand/Logo";
 
 /** ADM-6: email + password, then a 6-digit TOTP code (with first-time setup). */
 export function AdminLogin() {
@@ -32,7 +33,7 @@ export function AdminLogin() {
 
   return (
     <div className="admin-login">
-      <div className="serif admin-login__mark">Amerapelle</div>
+      <div className="admin-login__mark"><Logo variant="stacked" size={88} /></div>
       <div className="mono-label">ADMIN · {step === "password" ? "STEP 1 OF 2" : "STEP 2 OF 2 · TWO-STEP VERIFICATION"}</div>
       {step === "password" ? (
         <form

@@ -10,6 +10,7 @@ import { apiMessage, italicWord, naira, pad2 } from "@/lib/format";
 import { iconKind } from "@/lib/product";
 import { prefersReducedMotion } from "@/lib/motion";
 import type { Collection, ProductCard } from "@/lib/types";
+import { Logo } from "@/components/brand/Logo";
 
 export type DropPiece = ProductCard & { left: number };
 
@@ -112,7 +113,7 @@ export function DropTakeover({ collection, title, pieces, mode = "page", onClose
       {showLive && (
         <div className="drop__live">
           <div className="drop__bar">
-            <Link href="/" className="serif drop__mark">Amerapelle</Link>
+            <Link href="/" className="drop__mark" aria-label="Amerapelle — home"><Logo size={30} /></Link>
             <span className="drop__status">
               <span className="pulse-dot pulse-dot--7 ap-pulse" aria-hidden />
               {dropName} · LIVE NOW

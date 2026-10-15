@@ -4,7 +4,7 @@
 .admin { min-height: 100vh; background: var(--white); }
 .admin__loading { padding: 40px; }
 .admin__top { height: 60px; display: flex; align-items: center; gap: 16px; padding: 0 24px; border-bottom: 1px solid var(--ink); position: sticky; top: 0; background: var(--white); z-index: 20; }
-.admin__mark { font-size: 24px; }
+.admin__mark { display: inline-flex; }
 .admin__spacer { flex: 1; }
 .admin__menu { display: none; }
 .admin__body { display: flex; }
@@ -13,7 +13,7 @@
 .admin__navlink.is-on { border-left-color: var(--ink); font-weight: 600; background: var(--wash); }
 .admin__main { flex: 1; min-width: 0; padding: 32px 40px 80px; display: flex; flex-direction: column; gap: 24px; }
 .admin-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--ink); padding-bottom: 16px; }
-.admin-head__title { font-size: 48px; line-height: .95; letter-spacing: -0.02em; margin-top: 6px; }
+.admin-head__title { font-size: 36px; line-height: 1; letter-spacing: -0.02em; margin-top: 6px; }
 .admin-head__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .admin-head__actions .btn--short, .admin-head__actions .btn--ghost { height: 40px; }
 .admin-head__actions label.btn--ghost { cursor: pointer; display: inline-flex; align-items: center; }
@@ -31,7 +31,7 @@
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .kpi { border: 1px solid var(--ink); padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; color: var(--ink); }
 .kpi:hover { color: var(--ink); background: var(--wash); }
-.kpi__value { font-size: 48px; line-height: 1; }
+.kpi__value { font-size: 36px; line-height: 1; }
 .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; }
 .admin-card { border: 1px solid var(--line); padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
 .admin-card--wide { grid-column: 1 / -1; }
@@ -53,19 +53,19 @@
 .img-grid__add .serif { font-size: 40px; line-height: 1; }
 .admin-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .admin-list--plain li { padding: 10px 0; border-bottom: 1px solid var(--hair); font-size: 13px; }
-.admin-list__title { font-size: 28px; line-height: 1; }
+.admin-list__title { font-size: 24px; line-height: 1; }
 .ex-timeline { list-style: none; margin: 0; padding: 0; font-size: 12px; display: flex; flex-direction: column; gap: 4px; }
 .notes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
 .admin-pager { justify-content: center; }
 .admin-md textarea { font-family: var(--mono); font-size: 13px; line-height: 20px; }
 .admin--login { display: grid; place-items: center; padding: 24px; }
 .admin-login { width: min(420px, 100%); display: flex; flex-direction: column; gap: 16px; border: 1px solid var(--ink); padding: 28px; }
-.admin-login__mark { font-size: 40px; line-height: 1; }
+.admin-login__mark { display: flex; justify-content: center; }
 .totp-setup { display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--line); padding: 12px; }
 .totp-setup__secret { font-family: var(--mono); font-size: 16px; letter-spacing: .1em; }
 .slip { max-width: 760px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 20px; font-size: 13px; }
 .slip__head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--ink); padding-bottom: 12px; }
-.slip__mark { font-size: 32px; }
+.slip__mark { display: inline-flex; }
 .slip__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .slip__grid p { margin-top: 6px; line-height: 20px; }
 .slip__foot { border-top: 1px solid var(--hair); padding-top: 12px; }
@@ -78,7 +78,7 @@
   .admin__nav { position: fixed; left: 0; top: 60px; bottom: 0; background: var(--white); z-index: 30; transform: translateX(-100%); transition: transform 300ms var(--ease-out); min-height: 0; }
   .admin__nav.is-open { transform: none; border-right: 1px solid var(--ink); }
   .admin__main { padding: 20px 16px 64px; }
-  .admin-head__title { font-size: 36px; }
+  .admin-head__title { font-size: 27px; }
   .admin-grid { grid-template-columns: 1fr; }
   .admin__top .mono-label { display: none; }
   .bars li { grid-template-columns: 110px 1fr 30px; }
@@ -93,12 +93,12 @@
 .ex-admin__title .status-pill { font-family: var(--sans); letter-spacing: 0; vertical-align: middle; }
 .ex-admin__actions .btn--short { height: 44px; padding: 0 20px; }
 .ex-admin__actions .btn--ghost { height: 44px; padding: 0 20px; }
-.ex-admin__credit { font-size: 32px; line-height: 1; }
+.ex-admin__credit { font-size: 27px; line-height: 1; }
 .ex-admin__items td { vertical-align: middle; }
 .ex-admin__thumbcell { width: 68px; }
 .ex-admin__thumb { position: relative; display: block; width: 56px; height: 70px; background: var(--img); overflow: hidden; }
-.ex-admin__name { font-size: 20px; line-height: 1.1; display: block; margin-bottom: 4px; }
-.ex-admin__reason { font-size: 28px; line-height: 1.05; margin: 0; }
+.ex-admin__name { font-size: 18px; line-height: 1.1; display: block; margin-bottom: 4px; }
+.ex-admin__reason { font-size: 24px; line-height: 1.05; margin: 0; }
 .ex-admin__quote { margin: 0; padding: 2px 0 2px 14px; border-left: 2px solid var(--navy); font-size: 14px; line-height: 22px; }
 .ex-admin__photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
 .ex-admin__photo { aspect-ratio: 4 / 5; padding: 0; border: 1px solid var(--line); background: var(--img); overflow: hidden; cursor: zoom-in; border-radius: 0; }
@@ -111,7 +111,7 @@
 .ex-admin__timeline li:last-child { border-bottom: 0; }
 @media (max-width: 900px) {
   .ex-admin__timeline li { grid-template-columns: 1fr; gap: 2px; }
-  .ex-admin__reason { font-size: 24px; }
+  .ex-admin__reason { font-size: 20px; }
   .ex-admin__actions .btn { flex: 1 1 auto; }
   .ex-admin__grid { grid-template-columns: 1fr; }
 }
@@ -119,7 +119,7 @@
   .ex-admin__paid { display: none; }
   .ex-admin__totallabel { padding-right: 0; }
   .ex-admin__totallabel .mono-xs { display: block; margin-top: 2px; }
-  .ex-admin__name { font-size: 17px; }
+  .ex-admin__name { font-size: 16px; }
   .ex-admin__thumbcell { width: 60px; }
   .ex-admin__thumb { width: 48px; height: 60px; }
 }

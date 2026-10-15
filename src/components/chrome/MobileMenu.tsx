@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useNav } from "./Header";
 import { CloseIcon, SearchIcon } from "./Icons";
 import { useDialog } from "./useDialog";
+import { Logo } from "@/components/brand/Logo";
 
 export function MobileMenu() {
   const { menuOpen, setMenuOpen, setSearchOpen } = useUI();
@@ -21,7 +22,7 @@ export function MobileMenu() {
     <div className="overlay" onClick={close}>
       <div ref={ref} className="menu-panel" role="dialog" aria-modal="true" aria-label="Menu" onClick={(e) => e.stopPropagation()}>
         <div className="menu-panel__head">
-          <span className="wordmark wordmark--mobile">Amerapelle</span>
+          <span className="wordmark wordmark--mobile"><Logo size={26} /></span>
           <button className="icon-btn" aria-label="Close menu" onClick={close}><CloseIcon /></button>
         </div>
         <button className="menu-panel__search" onClick={() => { close(); setSearchOpen(true); }}>

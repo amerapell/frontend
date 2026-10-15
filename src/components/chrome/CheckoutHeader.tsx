@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AsookeStripe } from "@/components/patterns/Patterns";
 import { BackIcon } from "./Icons";
+import { Logo } from "@/components/brand/Logo";
 
 /** Checkout chrome: 8px Aso-oke strip, 3-col header (back link · centred wordmark · SECURE CHECKOUT). */
 export function CheckoutHeader() {
@@ -19,14 +20,14 @@ export function CheckoutHeader() {
           ) : (
             <Link href="/bag" className="ap-link checkout-header__back">← Back to bag</Link>
           )}
-          <Link href="/" className="wordmark checkout-header__mark">Amerapelle</Link>
+          <Link href="/" className="wordmark checkout-header__mark" aria-label="Amerapelle — home"><Logo size={32} /></Link>
           <span className="mono-label checkout-header__secure">SECURE CHECKOUT</span>
         </div>
         <div className="site-header__mobile show-mobile">
           <button type="button" className="icon-btn" aria-label="Back" onClick={() => router.push(onBag ? "/" : "/bag")}>
             <BackIcon />
           </button>
-          <Link href="/" className="wordmark wordmark--mobile">Amerapelle</Link>
+          <Link href="/" className="wordmark wordmark--mobile" aria-label="Amerapelle — home"><Logo size={26} /></Link>
           <span />
         </div>
       </header>
